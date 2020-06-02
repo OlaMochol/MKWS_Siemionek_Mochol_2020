@@ -1,0 +1,363 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{lastpage}
+\usepackage[margin=3.0cm]{geometry}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usepackage{pdfpages}
+\begin{document}
+\pagestyle{fancy}
+\fancyhead[L,R]{}
+\fancyhead[C]{}
+\cfoot{
+\hrule \\ \vspace{0.25cm}Computer Methods in Combustion \\\vspace{0.2cm} Page \thepage \hspace{1pt} of \pageref{LastPage}}
+
+\thispagestyle{empty}
+\begin{flushright}
+{\large  Aleksandra Mochol, 292 767 \\
+Kamil Siemionek, 292 702\\}
+\end{flushright}
+\begin{center}
+	\vspace*{5.5cm}
+	\textbf{{\huge Warsaw University of Technology}\\
+		\vspace*{0.3cm}
+		{\LARGE Faculty of Power and Aeronautical Engineering\\}}
+	\vspace{2cm}
+	\textsc{\textbf{{\huge Computer Methods in Combustion\\}}}
+	\vspace{1.5cm}
+	{\Large \textbf{Determination of the maximum impulse and combustion temperature for various types of oxidants in liquid rocket engine\\}}
+	\vspace{7cm}
+	{\large Warsaw 02.06.2020}
+\end{center}
+
+\newpage 
+\tableofcontents
+
+%Introduction
+\newpage
+\section{Introduction}
+The project presents a comparison of two approaches on calculating the specific impulse and the temperature in the combustion chamber for a liquid rocket engine. Two programs were used, MATLAB with the Cantera program and NASA CEA, both are based on the same chemical equations. However, the most important difference between them the degree of simplyfication of reactions and the fact that the data for reactants to MATLAB must be entered and in most cases calculated manually by the user while the CEA uses its own library.
+
+%Models
+\section{Models}
+
+%Engine properties
+\subsection{Engine parameters}
+The calculations were performed for the Merlin 1D engine model from SpaceX. Parameters of this particular engine are presented in \textit{Table 1}.
+\vspace{0.3cm}
+\begin{center}
+\begin{tabular}{l  c}
+	\hline
+    Properties & Merlin 1 \\
+    \hline
+    Pressure at exit [atm] & 1 \\
+    \hline
+    Pressure combustion chamber [atm] & 95,73 \\
+    \hline
+    Oxidiser initial pressure [atm] & 100 \\
+    \hline
+     Temperature of reactants [K] & 289 \\
+    \hline
+    Subsonic area ratio [-] & 8 \\
+    \hline
+    Supersonic area ratio [-] & 16 \\
+    \hline
+    \end{tabular}
+    \vspace{0.1 cm}
+    \\ \caption{ \textsl{ Table 1. Engine parameters}}\\
+\end{center}
+\vspace{0.2cm}
+
+%Oxidizer
+\subsection{Oxidizer}
+One oxidizer, nitrous dioxide, was used in all calculations, its properties are summarized in \textit{Table 2}.
+\vspace{0.3cm}
+\begin{center}
+\begin{tabular}{l  c}
+	\hline
+    Properties & Nitrous dioxide ($N_2O$)\\
+    \hline
+     State of matter & gas \\
+    \hline
+     Density [$kg/m^3$] & 1,799 \\
+    \hline
+     Molar mass [$g/mol$] & 44,0129 \\
+    \hline
+    Enthalpy of formation [$J/kg$] & 1860000 \\
+    \hline
+    \end{tabular}
+    \vspace{0.1 cm}
+    \\ \caption{ \textsl{ Tabele 2. Oxidizer properties}}\\
+\end{center}
+\vspace{0.3cm}
+
+%Fuel
+\subsection{Fuel}
+The analyzes were carried out for four different fuels, common in aerospace; their properties are summarized in \textit{Table 3}.
+\vspace{0.3cm}
+\begin{center}
+\begin{tabular}{l  c  c  c  c}
+	\hline
+    Properties & \makecell{Methane \\ ($CH_4$)} & \makecell{Hydrogene \\ ($H_2$)} & \makecell{Hydrazine \\ ($N_2H_4$)} & \makecell{Kerosene \\ ($RP-1$)} \\
+    \hline
+     State of matter & liquid & liquid & liquid & liquid \\
+    \hline
+     Density [$kg/m^3$] & 2.31 & 70,85 & 100,30 & 750,13 \\
+    \hline
+     Molar mass [$g/mol$] & 16,04 & 2,02 & 32,04 & 170,34 \\
+    \hline
+    Enthalpy of formation [$J/kg$] & -4673750 & 0 & -3046875 & -131060 \\
+    \hline
+    Temperature of reactants [$K$] & 111 & 90 & 298 & 298 \\
+    \hline
+    \end{tabular}
+    \vspace{0.1 cm}
+    \\ \caption{ \textsl{ Table 3. Fuels properties}}\\
+\end{center}
+\vspace{0.3cm}
+
+%Cantera model
+\subsection{Cantera model}
+Cantera is one of chemical kinetics software which can be used to compute variety of reactions from thermodynamical point of view, including combustion. Any combustion calculation requires entering precalculated formulas for every reactant and product factor. Having given proportions, Cantera can further calculate reaction parameters, for instance, temperature or specific impulses. In this project, Cantera is operated using MATLAB and special toolbox. These things combined allow to write MATLAB code interpreted and ran in Python and to analyse results.\vspace{0.2cm}\\
+Masses and proportions of products of combustion were calculated using following chemical equations which depend on Oxidiser/Fuel ratio:
+\vspace{0.1cm}
+\begin{center}
+\begin{tabular}{lc}
+\hline 
+O/F & Chemical reaction for C_{12}H_{26} \\ 
+\hline 
+$O/F \leq 3.1$ &\hspace{0.1 cm} $ a_1*C_{12}H_{26}+a_2*N_2O --> a_3*CO+a_4*H_2+a_5*N_2+a_6*C_{12}H_{26} $\hspace{0.1 cm} \\ 
+\hline 
+$3.1<O/F\leq 6.2$ & $ a_1*C_{12}H_{26}+a_2*N_2O --> a_3*CO+a_4*H_2+a_5*H_2O+a_6*N_2 $ \\ 
+\hline 
+$6.2<O/F\leq 9.56$ & $ a_1*C_{12}H_{26}+a_2*N_2O --> a_3*CO_2+a_4*H_2O+a_5*N_2+a_6*H_2 $ \\ 
+\hline 
+$9.56<O/F$ & $ a_1*C_{12}H_{26}+a_2*N_2O --> a_3*CO_2+a_4*H_2O+a_5*N_2+a_6*N_2O $ \\ 
+\hline 
+\end{tabular} 
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{lc}
+\hline 
+O/F & Chemical reaction for CH_{4} \\ 
+\hline 
+$O/F \leq 2.744$ & $ a_1*CH_4+a_2*N_2O --> a_3*CO+a_4*H_2+a_5*N_2+a_6*CH_4 $ \\ 
+\hline 
+$2.744<O/F\leq 8.231$ & $ a1*CH_4 + a_2*N_2O -> a_3*CO + a_4*H_2 + a_5*H_2O + a_6*N_2 $ \\ 
+\hline 
+$8.231<O/F\leq 10.975$ & $ a_1*CH_4+a_2*N_2O --> a_3*CO_2+a_4*H_2O+a_5*N_2+a_6*H_2 $ \\ 
+\hline 
+$10.975<O/F$ & $ a_1*CH_4+a_2*N_2O --> a_3*CO_2+a_4*H_2O+a_5*N_2+a_6*N_2O $ \\ 
+\hline 
+\end{tabular} 
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{lc}
+\hline 
+O/F & Chemical reaction for H_{2} \\ 
+\hline 
+$O/F \leq 5.458$ & $ a_1*H_2 + a_2*N_{2}O --> a3*H_2O + a_4*NH_3 $ \\ 
+\hline 
+$5.458<O/F\leq 21.835$ & $ a_1*H_2 + a_2*N_{2}O --> a3*H_2O + a_4*NH_3 + a_5*N_2 $ \\ 
+\hline 
+$21.835<O/F$ & \hspace{0.2 cm} $ a_1*H_2 + a_2*N_{2}O --> a_3*H_{2}O + a_5*N_2 + a_6*H_2 +a_4*N_{2}O $\hspace{0.2 cm} \\ 
+\hline 
+
+\end{tabular} 
+\end{center}
+
+\begin{center}
+\begin{tabular}{lc}
+\hline 
+O/F & Chemical reaction for N_{2}H_{4} \\ 
+\hline 
+$O/F \leq 2.75$ & \hspace{2.7cm} $ a_1*N_{2}H_{4}+a_2*N_2O --> a_3*H_{2}O+a_4*NH_{3}+a_5*N_2 $  \hspace{2.5cm}\\ 
+\hline 
+$2.75<O/F $ & $ a_1*N_{2}H_{4}+a_2*N_2O --> a_3*H_{2}O+a_4*N_{2}O+a_5*N_2 $ \\ 
+\hline 
+\end{tabular} 
+\vspace{0.3 cm}
+    \\ \caption{ \textsl{ Table 4. Chemical reactions of fuel and oxidant in the combustion chamber}}\\
+\end{center}
+\vspace{0.3cm}
+Based on above reactions and standard enthalpies of formation for  adequate substances, the heat revealed during combustion process has been computed. Due to the fact that all products are defined in Cantera,the temperature in combustion chamber has been evaluated considering the fact that specific heat strongly depends on temperature. Also the phenomenon of fuel vaporization has been omitted what results in approximation that heat of vaporization for kerosene is close to zero.  \\
+As a result of above reactions and temperature the specific impulse could be computed based on following equation:
+\vspace{0.5cm}
+$$Isp=\sqrt{\frac{kR_{gas}T_c}{k-1}\left[1-\left(\frac{p_e}{p_c}\right)^{\frac{k-1}{k}}\right]}$$ \\
+where:\\
+$k$ = ratio of specific heats, cp/cv \\
+$p_e$ = nozzle exit pressure \\
+$p_c$ = combustion chamber pressure \\ 
+$T_c$ = combustion chamber temperature \\
+$R_{gas}$ = exhaust flow specific gas constant\\
+
+%CEA model
+\subsection{NASA CEA model}
+The NASA Computer program CEA (Chemical Equilibrium with Applications) calculates chemical equilibrium compositions and properties of complex mixtures. Applications include assigned thermodynamic states, theoretical rocket performance, Chapman-Jouguet detonation parameters, shock tube parameters, and combustion properties. Chemical equations used in the NASA CEA program are partly analogous to the equations used in the program created in Cantera. However, there is no need to enter them because the program is based on its own library with material properties.
+
+%Results
+\section{Results}
+
+%Cantera results
+\subsection{Cantera results}
+\vspace{0.3cm}
+\begin{center}
+\begin{tabular}{ccccccccc}
+	\hline
+\multirow{2}{*}{O/F} & \multicolumn{2}{c}{Methane} & \multicolumn{2}{c}{Hydrogene} & \multicolumn{2}{c}{Hydrazine} & \multicolumn{2}{c}{Kerosyne} \\
+ & T & Isp & T & Isp & T & Isp & T & Isp \\
+{[}-{]} & {[}K{]} & {[}s{]} & {[}K{]} & {[}s{]} & {[}K{]} & {[}s{]} & {[}K{]} & {[}s{]} \\
+\hline
+1 & 1307,85 & 115,76 & 715,98 & 100,59 & 1311,55 & 145,38 & 1614,42 & 101,97 \\
+\hline
+2 & 1380,36 & 136,80 & 1053,36 & 153,86 & 2515,22 & 180,77 & 1989,10 & 131,36 \\
+\hline
+3 & 1466,36 & 147,10 & 1408,40 & 189,53 & 2866,85 & 187,31 & 2176,81 & 146,02 \\
+\hline
+4 & 1944,20 & 163,19 & 1716,25 & 209,72 & 2403,94 & 181,87 & 2699,10 & 156,53 \\
+\hline
+5 & 2418,52 & 175,24 & 1982,37 & 220,94 & 2072,08 & 176,12 & 3056,65 & 160,86 \\
+\hline
+6 & 2777,05 & 182,06 & 2206,80 & 224,25 & 1833,25 & 170,99 & 3248,15 & 161,70 \\
+\hline
+7 & 3040,62 & 185,80 & 2397,75 & 223,89 & 1653,70 & 166,46 & 3323,28 & 160,62 \\
+\hline
+8 & 3213,47 & 187,25 & 2565,31 & 223,20 & 1513,77 & 162,45 & 3336,59 & 158,80 \\
+\hline
+9 & 3303,53 & 186,94 & 2712,01 & 222,28 & 1401,91 & 158,90 & 3323,03 & 156,85 \\
+\hline
+10 & 3327,42 & 185,36 & 2840,33 & 221,21 & 1311,07 & 155,78 & 3297,63 & 154,98 \\
+\hline
+11 & 3317,65 & 183,31 & 2952,24 & 220,04 & 1236,10 & 153,02 & 3266,79 & 153,22 \\
+\hline
+12 & 3290,53 & 181,12 & 3049,40 & 218,79 & 1174,04 & 150,62 & 3233,62 & 151,61 \\
+\hline
+13 & 3255,57 & 178,97 & 3133,02 & 217,47 & 1121,55 & 148,48 & 3199,61 & 150,11 \\
+\hline
+14 & 3216,81 & 176,90 & 3204,22 & 216,10 & 1077,32 & 146,60 & 3165,54 & 148,72 \\
+\hline
+15 & 3176,58 & 174,94 & 3263,59 & 214,67 & 1040,30 & 144,99 & 3131,89 & 147,43 \\
+    \hline
+    \end{tabular}
+    \vspace{0.1 cm}
+    \\ \caption{ \textsl{ Table 5. Cantera Results}}\\
+\end{center}
+
+%CEA Results
+\subsection{NASA CEA results}
+\vspace{0.3cm}
+\begin{center}
+\begin{tabular}{ccccccccc}
+	\hline
+\multirow{2}{*}{O/F} & \multicolumn{2}{c}{Methane} & \multicolumn{2}{c}{Hydrogene} & \multicolumn{2}{c}{Hydrazine} & \multicolumn{2}{c}{Kerosyne} \\
+ & T & Isp & T & Isp & T & Isp & T & Isp \\
+{[}-{]} & {[}K{]} & {[}s{]} & {[}K{]} & {[}s{]} & {[}K{]} & {[}s{]} & {[}K{]} & {[}s{]} \\
+\hline
+1 & 764,30 & 166,56 & 469,79 & 249,39 & 1706,25 & 228,42 & 930,65 & 171,85 \\
+\hline
+2 & 899,54 & 183,94 & 705,63 & 2530,10 & 2377,82 & 249,04 & 1059,09 & 184,69 \\
+\hline
+3 & 974,91 & 191,04 & 996,29 & 264,66 & 2486,73 & 247,17 & 1219,56 & 191,51 \\
+\hline
+4 & 1260,77 & 197,96 & 1248,79 & 271,31 & 2269,04 & 226,26 & 1730,37 & 206,26 \\
+\hline
+5 & 1684,64 & 212,58 & 1466,87 & 276,32 & 2060,08 & 210,23 & 2150,57 & 223,10 \\
+\hline
+6 & 2013,65 & 225,37 & 1657,04 & 279,51 & 1883,06 & 197,55 & 2441,19 & 233,44 \\
+\hline
+7 & 2267,35 & 233,84 & 1823,95 & 281,29 & 1735,42 & 187,24 & 2606,40 & 240,03 \\
+\hline
+8 & 2451,05 & 239,71 & 1970,52 & 282,29 & 1611,85 & 178,63 & 2657,41 & 243,90 \\
+\hline
+9 & 2556,60 & 243,84 & 2098,71 & 282,80 & 1507,47 & 171,34 & 2647,81 & 245,04 \\
+\hline
+10 & 2587,88 & 246,30 & 2210,11 & 282,98 & 1418,35 & 165,06 & 2611,22 & 240,76 \\
+\hline
+11 & 2574,26 & 246,23 & 2306,36 & 282,91 & 1314,48 & 159,58 & 2560,29 & 234,50 \\
+\hline
+12 & 2537,85 & 240,42 & 2389,11 & 282,66 & 1274,51 & 154,76 & 2500,12 & 228,31 \\
+\hline
+13 & 2488,85 & 234,44 & 2459,84 & 282,26 & 1215,68 & 150,47 & 2433,39 & 222,42 \\
+\hline
+14 & 2432,19 & 228,73 & 2519,74 & 281,81 & 1163,59 & 146,63 & 2362,19 & 216,88 \\
+\hline
+15 & 2370,79 & 223,34 & 2569,64 & 281,26 & 1117,14 & 143,16 & 2288,61 & 211,71\\
+    \hline
+    \end{tabular}
+    \vspace{0.1 cm}
+    \\ \caption{ \textsl{ Table 6. NASA CEA Results}}\\
+\end{center}
+\vspace{0.3cm}
+
+%Comparasion
+\section{Comparision}
+Comparison for each one of four cases looks similar. Specific impulse calculated in Cantera program is always lower than the one calculated in NASA CEA. The bigger difference occurs for RP-1, around 30 percents. The opposite is true for temperature calculations in the combustion chamber, where temperatures are higher in Cantera. The differences are around 25-30 percents for all substances burned except for methane for which the difference between the two calculation methods is about 15 percents. The percentage differences resulting from different calculation methods have been collected and presented in \textit{Table 7}.
+
+\vspace{0.3cm}
+\begin{center}
+\begin{tabular}{cccccccc}
+	\hline
+ \multicolumn{2}{c}{Methane} & \multicolumn{2}{c}{Hydrogene} & \multicolumn{2}{c}{Hydrazine} & \multicolumn{2}{c}{Kerosyne} \\
+  \hline
+T {[}\%{]} & Isp {[}\%{]} & T {[}\%{]} & Isp {[}\%{]} & T {[}\%{]} & Isp {[}\%{]} & T {[}\%{]} & Isp {[}\%{]} \\
+\hline
+28,58 & 23,98 & 27,01 & 20,75 & 15,29 & 24,79 & 25,56 & 34,01 \\
+    \hline
+    \end{tabular}
+    \vspace{0.1 cm}
+    \\ \caption{ \textsl{ Table 7. Results comparasion}}\\
+\end{center}
+\vspace{0.3cm}
+
+\textit{Charts 1-4} show the results of calculations performed in each software. It is noticeable that results seem to be similar in a qualitative way. For both calculation methods, the maximum temperature and maximum specific impulse appear for the same ratio of oxidant to fuel.
+
+ \begin{center}
+\includegraphics[scale=0.7]{wyk_ch4.png}
+ \caption{\\ \textsl{Chart.1 Comparasion of results from NASA CEA and Cantera $CH_4$}\\}
+ \vspace{0.6cm}
+ 
+ \includegraphics[scale=0.7]{wyk_h2.png}
+ \caption{\\ \textsl{Chart.2 Comparasion of results from NASA CEA and Cantera $H_2$}\\}
+ \vspace{1cm}
+ 
+ \includegraphics[scale=0.7]{wyk_n2h4.png}
+ \caption{\\ \textsl{Chart.3 Comparasion of results from NASA CEA and Cantera $N_{2}H_4$}\\}
+ \vspace{0.6cm}
+ 
+ \includegraphics[scale=0.7]{wyk_rp1.png}
+ \caption{\\ \textsl{Chart.4 Comparasion of results from NASA CEA and Cantera $RP-1$}\\}
+ \vspace{1cm}
+ \end{center}
+
+%Summary
+\section{Conclusions and summary}
+Not all parameters of chamber are used in Cantera, that might cause differences in way software sees the place of combustion, which might have slight impact on results. Both Cantera and NASA CEA are different softwares so they might have different attitude to same issues. \vspace{0.2cm}\\
+Another thing that may cause differences are collections of data. NASA CEA is quite old software, the last update was 15 years ago, where time from the latest update of Cantera is counted of months. The methods of calculations may not be changed drastically in perspective of years, but parameters of gases and substances used in combustion may vary as there are new researches still made. \vspace{0.2cm}\\
+In case of temperatures, MATLAB program written to use Cantera has the 100K range of accuracy (later changed to 50 kelvins). This draws attention on the fact, that programs are not exactly accurate, both have different outcomes than reality, the sum of these might be significant.\vspace{0.2cm}\\
+Another reason of differences might be the degree of simplification of equations and processes during combustion. Cantera takes into account problem of inadequate ammount of oxidiser, but does not consider temporary conditions and grading of the reaction (i.e. temporary existing of OH- in combustion of carbohydrates).\vspace{0.2cm}\\
+All these factors may not cause much difference separately, but combined might be the reason of such gaps in values during calculations in project.
+
+%Code
+\section{Code}
+Matlab code for all calculated cases is available on GitHub in the project repository.\\Link: https://github.com/OlaMochol/MKWS\_Siemionek\_Mochol\_2020
+
+%Sources
+\section{Sources}
+https://www.naukowiec.org/tablice/chemia/wartosci-standardowych-entropii-i-entalpii-tworzenia\_409.html 
+\\https://chemequations.com/en/advanced-search
+\\https://www.spacex.com/ - SpaceX propulsion
+\\https://books.google.pl/books?id=CHreLoyp0LkC&pg - Report of Aeronautical Research Laboratory of USAF on combustion of hydrazine and nitrous oxide
+\\''Computing of the combustion parameters for liquid propellant rocket engine ", Krzysztof Pietrzak, GitHub Repository
+\end{document}
+
