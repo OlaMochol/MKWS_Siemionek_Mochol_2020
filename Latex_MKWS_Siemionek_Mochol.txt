@@ -32,7 +32,7 @@ Kamil Siemionek, 292 702\\}
 	\vspace{2cm}
 	\textsc{\textbf{{\huge Computer Methods in Combustion\\}}}
 	\vspace{1.5cm}
-	{\Large \textbf{Determination of the maximum impulse and combustion temperature for various types of oxidants in liquid rocket engine\\}}
+	{\Large \textbf{Determination of the maximum impulse and combustion temperature for various types of fuels in liquid rocket engine\\}}
 	\vspace{7cm}
 	{\large Warsaw 02.06.2020}
 \end{center}
